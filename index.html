@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrabble Points Calculator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Add border to the table */
+        table {
+            border: 2px solid #000; /* Outline for the table */
+            border-collapse: collapse; /* Collapse borders */
+        }
+        th, td {
+            border: 1px solid #000; /* Outline for table cells */
+            padding: 8px; /* Padding for cells */
+            text-align: left; /* Align text to the left */
+        }
+        th {
+            background-color: #f2f2f2; /* Light gray background for header */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Scrabble Points Calculator</h1>
+        <div class="form-group">
+            <label for="teamInput">Enter Team Name:</label>
+            <input type="text" class="form-control" id="teamInput" placeholder="Type a team name">
+        </div>
+        <div class="form-group">
+            <label for="wordInput">Enter a word:</label>
+            <input type="text" class="form-control" id="wordInput" placeholder="Type a word">
+        </div>
+        <button class="btn btn-primary" id="calculateBtn">Calculate Points</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset</button>
+        
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>Team Name</th>
+                    <th>Total Points</th>
+                    <th>Words</th>
+                </tr>
+            </thead>
+            <tbody id="pointsTableBody"></tbody> <!-- Table body to display points -->
+        </table>
+    </div>
+
+    <script>
+        const letterPoints = {
+            ' ': 0, // Blank tile
+            A: 1, E: 1, I: 1, L: 1, N: 1, O: 1, R: 1, S: 1, T: 1, U: 1,
+            D: 2, G: 2,
+            B: 3, C: 3, M: 3, P: 3,
+            F: 4, H: 4, V: 4, W: 4, Y: 4,
+            K: 5,
+            J: 8, X: 8,
+            Q: 10, Z: 10
+        };
+
+        const teams = {}; // Object to store teams and their points
+
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const teamName = document.getElementById('teamInput').value.trim();
+            const word = document.getElementById('wordInput').value.toUpperCase();
+            let totalPoints = 0;
+
+            if (!teamName || !word) {
+                alert("Please enter both a team name and a word.");
+                return;
+            }
+
+            for (let letter of word) {
+                totalPoints += letterPoints[letter] || 0; // Add points for each letter
+            }
+
+            // Initialize team if it doesn't exist
+            if (!teams[teamName]) {
+                teams[teamName] = { totalPoints: 0, words: [] };
+            }
+
+            teams[teamName].totalPoints += totalPoints; // Update team's total points
+            teams[teamName].words.push({ word, points: totalPoints }); // Store the word and its points
+
+            updatePointsTable(); // Update the displayed table of points
+        });
+
+        function updatePointsTable() {
+            const pointsTableBody = document.getElementById('pointsTableBody');
+            pointsTableBody.innerHTML = ''; // Clear the existing table body
+
+            for (const team in teams) {
+                const row = document.createElement('tr');
+                const wordsList = teams[team].words.map(item => `${item.word}: ${item.points} points`).join(', ');
+
+                row.innerHTML = `
+                    <td>${team}</td>
+                    <td>${teams[team].totalPoints}</td>
+                    <td>${wordsList}</td>
+                `;
+                pointsTableBody.appendChild(row); // Add each team and their points to the table
+            }
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('teamInput').value = '';
+            document.getElementById('wordInput').value = '';
+            for (const team in teams) {
+                teams[team].words.length = 0; // Clear the words for each team
+                teams[team].totalPoints = 0; // Reset total points for each team
+            }
+            updatePointsTable(); // Update the displayed table
+        });
+    </script>
+</body>
+</html>
